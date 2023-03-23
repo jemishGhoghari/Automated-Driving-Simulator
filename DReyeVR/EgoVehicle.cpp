@@ -176,7 +176,7 @@ void AEgoVehicle::ConstructRigidBody()
 
     // load skeletal mesh (static mesh)
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> CarMesh(TEXT(
-        "SkeletalMesh'/Game/DReyeVR/EgoVehicle/model3/Mesh/SkeletalMesh_model3.SkeletalMesh_model3'"));
+        "SkeletalMesh'/Game/Vespa/Mesh/eScooterBody.eScooterBody_SM_Vespa'"));
     // original: "SkeletalMesh'/Game/Carla/Static/Car/4Wheeled/Tesla/SM_TeslaM3_v2.SM_TeslaM3_v2'"
     USkeletalMesh *SkeletalMesh = CarMesh.Object;
     if (SkeletalMesh == nullptr)
@@ -187,7 +187,7 @@ void AEgoVehicle::ConstructRigidBody()
 
     // load skeleton (for animations)
     static ConstructorHelpers::FObjectFinder<USkeleton> CarSkeleton(
-        TEXT("Skeleton'/Game/DReyeVR/EgoVehicle/model3/Mesh/Skeleton_model3.Skeleton_model3'"));
+        TEXT("Skeleton'/Game/Vespa/Mesh/eScooterBody_SM_Vespa_Skeleton.eScooterBody_SM_Vespa_Skeleton'"));
     // original:
     // "Skeleton'/Game/Carla/Static/Car/4Wheeled/Tesla/SM_TeslaM3_lights_body_Skeleton.SM_TeslaM3_lights_body_Skeleton'"
     USkeleton *Skeleton = CarSkeleton.Object;
@@ -199,7 +199,7 @@ void AEgoVehicle::ConstructRigidBody()
 
     // load animations bp
     static ConstructorHelpers::FClassFinder<UObject> AnimBPClass(
-        TEXT("/Game/DReyeVR/EgoVehicle/model3/Mesh/Animation_model3.Animation_model3_C"));
+        TEXT("/Game/Vespa/Mesh/BP_Anim_eScooter.BP_Anim_eScooter_C"));
     // original: "/Game/Carla/Static/Car/4Wheeled/Tesla/Tesla_Animation.Tesla_Animation_C"
     auto AnimInstance = AnimBPClass.Class;
     if (!AnimBPClass.Succeeded())
@@ -738,7 +738,7 @@ void AEgoVehicle::UpdateDash()
 void AEgoVehicle::ConstructSteeringWheel()
 {
     static ConstructorHelpers::FObjectFinder<UStaticMesh> SteeringWheelSM(TEXT(
-        "StaticMesh'/Game/DReyeVR/EgoVehicle/model3/SteeringWheel/Wheel_StaticMeshl_model3.Wheel_StaticMeshl_model3'"));
+        "StaticMesh'/Game/Vespa/Steering/SM_eScooter_Steering.SM_eScooter_Steering'"));
     SteeringWheel = CreateDefaultSubobject<UStaticMeshComponent>(FName("SteeringWheel"));
     SteeringWheel->SetStaticMesh(SteeringWheelSM.Object);
     SteeringWheel->SetupAttachment(GetRootComponent()); // The vehicle blueprint itself

@@ -75,6 +75,8 @@ def update_DReyeVR_repo(
     corr = generate_correspondences(corr_file)
     all_corr = expand_correspondences_glob(corr)
 
+    print(all_corr)
+
     for src in all_corr.keys():
         r_install(src, all_corr[src], ROOT, verbose)
 

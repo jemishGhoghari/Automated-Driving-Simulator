@@ -49,7 +49,7 @@ def verify_installation(root_dir: str, check_files: List[str] = []) -> None:
 def get_leaf_from_path(path: str) -> str:
     if advanced_is_dir(path):
         # include the path separator to ensure it is still recognized as a directory
-        return os.path.basename(os.path.normpath(path)) + os.sep
+        return os.path.basename(os.path.normpath(path)) + os.sep  
     return os.path.basename(path)
 
 

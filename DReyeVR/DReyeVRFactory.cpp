@@ -6,7 +6,7 @@
 #include "EgoSensor.h"                                 // AEgoSensor
 #include "EgoVehicle.h"                                // AEgoVehicle
 
-#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_model3.BP_model3_C"
+#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_Vespa.BP_Vespa_C"
 
 // instead of vehicle.dreyevr.model3 or sensor.dreyevr.ego_sensor, we use "harplab" for category
 // => harplab.dreyevr_vehicle.model3 & harplab.dreyevr_sensor.ego_sensor

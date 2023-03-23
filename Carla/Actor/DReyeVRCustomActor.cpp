@@ -49,11 +49,11 @@ ADReyeVRCustomActor::ADReyeVRCustomActor(const FObjectInitializer &ObjectInitial
     Internals.Scale3D = this->GetActorScale3D();
 }
 
-ADReyeVRCustomActor::~ADReyeVRCustomActor()
+/*ADReyeVRCustomActor::~ADReyeVRCustomActor()
 {
     this->Deactivate();
     this->Destroy(); // UE4 Destroy method
-}
+}*/
 
 bool ADReyeVRCustomActor::AssignSM(const FString &Path, UWorld *World)
 {
