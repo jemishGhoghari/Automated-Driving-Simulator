@@ -5,6 +5,8 @@
 #include "Engine/Scene.h"           // FPostProcessSettings
 #include "GameFramework/Pawn.h"     // CreatePlayerInputComponent
 
+///////////// : Extra Libraries : /////////////////////
+
 #ifndef _WIN32
 // can only use LogitechWheel plugin on Windows! :(
 #undef USE_LOGITECH_PLUGIN
@@ -13,6 +15,10 @@
 
 #if USE_LOGITECH_PLUGIN
 #include "LogitechSteeringWheelLib.h" // LogitechWheel plugin for hardware integration & force feedback
+#endif
+
+#if USE_ARDUINO_PLUGIN
+#include "SerialCom.h"
 #endif
 
 #include "DReyeVRPawn.generated.h"
@@ -58,6 +64,7 @@ class ADReyeVRPawn : public APawn
 
   protected:
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void BeginDestroy() override;
     void ReadConfigVariables();
 
@@ -119,6 +126,21 @@ class ADReyeVRPawn : public APawn
     void SetupEgoVehicleInputComponent(UInputComponent *PlayerInputComponent, AEgoVehicle *EV);
     UInputComponent *InputComponent = nullptr;
     APlayerController *Player = nullptr;
+
+    ////////////////////////////////////////// : Arduino Control : /////////////////////////////////////////////
+#if USE_ARDUINO_PLUGIN
+    USerial* Serial; // Object of USerial class
+    bool bOpened; // Flag for Port Connected or Not
+    void connectSerial(); // Connect and Initialize the Port ad given Port name and Baud rate
+    void disconnectSerial(); // disconnects the Serial Port and Clean up the Port
+    std::tuple<float, float, float> extractValues(FString val); // returns the extracted values from Arduino in form of Tuple
+#endif
+    void TickSerial(); // Ticking the Arduino controller
+         
+    ///////////////////////////////////////////// : Utilities: /////////////////////////////////////////////
+    void Print_String(FString stringData); // Prints string values on the game window
+    float normalizeInRange(float X, float min, float max, float rangeX, float rangeY); // Return the normalized values between given range
+    std::vector<long double> movingAverage(std::vector<long double>& vec, size_t window_size);
 
     ////////////////:LOGI:////////////////
     void InitLogiWheel();

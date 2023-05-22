@@ -1,4 +1,5 @@
 #include "DReyeVRPawn.h"
+
 #include "DReyeVRUtils.h"                      // CreatePostProcessingEffect
 #include "HeadMountedDisplayFunctionLibrary.h" // SetTrackingOrigin, GetWorldToMetersScale
 #include "HeadMountedDisplayTypes.h"           // ESpectatorScreenMode
@@ -22,6 +23,11 @@ ADReyeVRPawn::ADReyeVRPawn(const FObjectInitializer &ObjectInitializer) : Super(
 
     // spawn and construct the first person camera
     ConstructCamera();
+
+    // Adruino Serial Communation
+#if USE_ARDUINO_PLUGIN
+    Serial = nullptr;
+#endif
 
     // log
     LOG("Spawning DReyeVR pawn for player0");
@@ -72,6 +78,11 @@ void ADReyeVRPawn::BeginPlay()
     World = GetWorld();
     ensure(World != nullptr);
     FirstPersonCam->RegisterComponentWithWorld(World);
+
+    // Connect Serial Port
+#if USE_ARDUINO_PLUGIN
+    connectSerial();
+#endif
 }
 
 void ADReyeVRPawn::BeginPlayer(APlayerController *PlayerIn)
@@ -119,6 +130,17 @@ void ADReyeVRPawn::Tick(float DeltaTime)
 
     // Tick spectator screen
     TickSpectatorScreen(DeltaTime);
+
+    // Adruino Serial
+    TickSerial();
+}
+
+void ADReyeVRPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    // At End Play, disconnect Serial Port
+#if USE_ARDUINO_PLUGIN
+    disconnectSerial();
+#endif
 }
 
 /// ========================================== ///
@@ -323,6 +345,138 @@ void ADReyeVRPawn::DrawFlatHUD(float DeltaSeconds)
         FlatHUD->DrawDynamicLine(RayStart, RayEnd, FColor::Red, 3.0f);
     }
 }
+
+
+/// ========================================== ///
+/// ---------------:Adruino Control:---------- ///
+/// ========================================== ///
+#if USE_ARDUINO_PLUGIN
+void ADReyeVRPawn::connectSerial()
+{
+    USerial* new_serial;
+
+    Serial = new_serial->OpenComPortWithFlowControl(bOpened, 3, 115200);
+
+    if (bOpened) {
+        Print_String(TEXT("Port is connected"));
+        UE_LOG(LogTemp, Display, TEXT("Port is connected"));
+        Serial->Flush();
+    }
+    else {
+        Print_String(TEXT("Port is not connected"));
+        UE_LOG(LogTemp, Display, TEXT("Port is not connected"));
+    }
+}
+
+void ADReyeVRPawn::disconnectSerial()
+{
+    if (::IsValid(Serial)) {
+        Serial->Close();
+        Print_String(TEXT("Port is disconnected"));
+        UE_LOG(LogTemp, Display, TEXT("Port is disconnected successfully"));
+    }
+}
+
+std::tuple<float, float, float> ADReyeVRPawn::extractValues(FString val) {
+    FString acc, brk, str_val;
+    int32 counter = 0;
+    for (size_t i = 0; i < val.Len(); i++) {
+        if (val[i] == ';') {
+            counter += 1;
+            continue;
+        }
+        else if (counter == 0) {
+            acc += val[i];
+        }
+        else if (counter == 1) {
+            brk += val[i];
+        }
+        else if (counter == 2) {
+            str_val += val[i];
+        }
+    }
+
+    float accelerattion, brake, steering;
+    accelerattion = FCString::Atof(*acc);
+    brake = FCString::Atof(*brk);
+    steering = FCString::Atof(*str_val);
+
+    return std::make_tuple(accelerattion, brake, steering);
+}
+
+#endif
+
+void ADReyeVRPawn::TickSerial() {
+#if USE_ARDUINO_PLUGIN
+    if (EgoVehicle == nullptr)
+        return;
+    
+    // Reading data from Serial Port in String Format
+    FString data = Serial->ReadString(bOpened);
+
+    // extracting data in float datatype
+    float accVal, brakeVal, steeringVal;
+    std::tie(accVal, brakeVal, steeringVal) = extractValues(data);
+    float Updated_steeringVal = normalizeInRange(steeringVal, 1.0, 3.0, -1.0, 1.0);
+
+    // Setting the Vehicle Control with Adruino Values
+    EgoVehicle->SetSteering(Updated_steeringVal);
+    EgoVehicle->SetThrottle(fabs(accVal));
+    EgoVehicle->SetBrake(fabs(1 - brakeVal));
+#endif
+}
+
+
+/// ==========================================  ///
+/// ---------------:Utilities:----------------  ///
+/// ==========================================  ///
+void ADReyeVRPawn::Print_String(FString stringData) {
+    GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, stringData);
+}
+
+float ADReyeVRPawn::normalizeInRange(float X, float min, float max, float rangeX, float rangeY) {
+    float normalized, denom, nom, factor;
+
+    if (X <= min) {
+        X = min;
+    }
+    if (X >= max) {
+        X = max;
+    }
+    denom = 1 / (max - min); // Denominator 
+    nom = X - min; // Nominator
+
+    factor = rangeY - rangeX;
+
+    normalized = (factor * nom * denom) + rangeX;
+    return normalized;
+}
+
+std::vector<long double> ADReyeVRPawn::movingAverage(std::vector<long double>& vec, size_t window_size) {
+    std::vector<long double> x;
+    return x;
+}
+
+//std::vector<long double> ADReyeVRPawn::movingAverage(std::vector<long double>& vec, size_t window_size) {
+//    if (vec.size() < window_size) {
+//        std::vector<long double> empty;
+//        return empty;
+//    }
+//
+//    std::vector<long double> sma_values(vec.size() - window_size + 1);
+//    long double window_sum = 0.0;
+//    size_t index = 0;
+//    size_t output_index = 0;
+//    size_t window_width = 0;
+//
+//    for (; index < window_size; ++index) {
+//        window_sum += vec[index];
+//    }
+//
+//    for (; index < vec.size(); ++index, ++output_index) {
+//        
+//    }
+//}
 
 /// ========================================== ///
 /// ---------------:LOGITECH:----------------- ///

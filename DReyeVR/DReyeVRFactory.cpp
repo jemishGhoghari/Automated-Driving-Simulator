@@ -6,7 +6,7 @@
 #include "EgoSensor.h"                                 // AEgoSensor
 #include "EgoVehicle.h"                                // AEgoVehicle
 
-#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_Vespa.BP_Vespa_C"
+#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_eScooter.BP_eScooter_C"
 
 // instead of vehicle.dreyevr.model3 or sensor.dreyevr.ego_sensor, we use "harplab" for category
 // => harplab.dreyevr_vehicle.model3 & harplab.dreyevr_sensor.ego_sensor
@@ -29,7 +29,7 @@ TArray<FActorDefinition> ADReyeVRFactory::GetDefinitions()
     FActorDefinition EgoVehicleDef;
     {
         FVehicleParameters Parameters;
-        Parameters.Model = "Model3";
+        Parameters.Model = "eScooter";
         Parameters.ObjectType = EgoVehicleBP_Str;
         Parameters.Class = AEgoVehicle::StaticClass();
         Parameters.NumberOfWheels = 4;

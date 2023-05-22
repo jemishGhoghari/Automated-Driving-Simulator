@@ -147,7 +147,7 @@ void AEgoVehicle::Tick(float DeltaSeconds)
     ReplayTick();
 
     // Draw debug lines on editor
-    DebugLines();
+    // DebugLines();
 
     // Render EgoVehicle dashboard
     UpdateDash();
@@ -163,6 +163,8 @@ void AEgoVehicle::Tick(float DeltaSeconds)
 
     // Play sound that requires constant ticking
     TickSounds();
+
+    countFPS = 1.0 / DeltaSeconds;
 }
 
 void AEgoVehicle::ConstructRigidBody()
@@ -670,6 +672,19 @@ void AEgoVehicle::ConstructDashText() // dashboard text (speedometer, turn signa
     GearShifter->SetWorldSize(10); // scale the font with this
     GearShifter->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
     GearShifter->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+
+    // Render FPS on Dashboard
+    fpsRenderer = CreateDefaultSubobject<UTextRenderComponent>(TEXT("FPSRenderer"));
+    fpsRenderer->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+    fpsRenderer->SetRelativeLocation(DashboardLocnInVehicle + FVector(0, 15.f, 0));
+    fpsRenderer->SetRelativeRotation(FRotator(0.f, 180.f, 0.f)); // need to flip it to get the text in driver POV
+    fpsRenderer->SetTextRenderColor(FColor::Green);
+    fpsRenderer->SetText(FText::FromString("0"));
+    fpsRenderer->SetXScale(1.f);
+    fpsRenderer->SetYScale(1.f);
+    fpsRenderer->SetWorldSize(10); // scale the font with this
+    fpsRenderer->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+    fpsRenderer->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 }
 
 void AEgoVehicle::UpdateDash()
@@ -729,6 +744,10 @@ void AEgoVehicle::UpdateDash()
         GearShifter->SetText(FText::FromString("R"));
     else
         GearShifter->SetText(FText::FromString("D"));
+
+    // FPS Renderer
+    const FString fps_data = FString::FromInt(int(FMath::RoundHalfFromZero(countFPS)));
+    fpsRenderer->SetText(FText::FromString(fps_data));
 }
 
 /// ========================================== ///
@@ -738,7 +757,7 @@ void AEgoVehicle::UpdateDash()
 void AEgoVehicle::ConstructSteeringWheel()
 {
     static ConstructorHelpers::FObjectFinder<UStaticMesh> SteeringWheelSM(TEXT(
-        "StaticMesh'/Game/Vespa/Steering/SM_eScooter_Steering.SM_eScooter_Steering'"));
+        "StaticMesh'/Game/DReyeVR/EgoVehicle/model3/SteeringWheel/SM_Steering_eScooter.SM_Steering_eScooter'"));
     SteeringWheel = CreateDefaultSubobject<UStaticMeshComponent>(FName("SteeringWheel"));
     SteeringWheel->SetStaticMesh(SteeringWheelSM.Object);
     SteeringWheel->SetupAttachment(GetRootComponent()); // The vehicle blueprint itself

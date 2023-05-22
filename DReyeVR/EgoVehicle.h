@@ -217,10 +217,13 @@ class CARLAUE4_API AEgoVehicle : public ACarlaWheeledVehicle
     float TurnSignalDuration; // time in seconds
     UPROPERTY(Category = "Dash", EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
     class UTextRenderComponent *GearShifter;
+    UPROPERTY(Category = "Dash", EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    class UTextRenderComponent* fpsRenderer;
     void UpdateDash();
     FVector DashboardLocnInVehicle{110, 0, 105}; // can change via params
     bool bUseMPH;
     float SpeedometerScale; // scale from CM/s to MPH or KPH depending on bUseMPH
+    float countFPS;
 
     ////////////////:STEERINGWHEEL:////////////////
     void ConstructSteeringWheel(); // needs to be called in the constructor

@@ -122,6 +122,10 @@
 		{
 			"Name": "LogitechWheelPlugin",
 			"Enabled": true
+		},
+		{
+			"Name": "SERIALCOM",
+			"Enabled": true
 		}
 	]
 }
