@@ -6,14 +6,14 @@
 #include "EgoSensor.h"                                 // AEgoSensor
 #include "EgoVehicle.h"                                // AEgoVehicle
 
-#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_eScooter.BP_eScooter_C"
+#define EgoVehicleBP_Str "/Game/DReyeVR/EgoVehicle/BP_eScooterSIM.BP_eScooterSIM_C"
 
 // instead of vehicle.dreyevr.model3 or sensor.dreyevr.ego_sensor, we use "harplab" for category
 // => harplab.dreyevr_vehicle.model3 & harplab.dreyevr_sensor.ego_sensor
 // in PythonAPI use world.get_actors().filter("harplab.dreyevr_vehicle.*") or
 // world.get_blueprint_library().filter("harplab.dreyevr_sensor.*") and you won't accidentally get these actors when
 // performing filter("vehicle.*") or filter("sensor.*")
-#define CATEGORY TEXT("HARPLab")
+#define CATEGORY TEXT("harplab")
 
 ADReyeVRFactory::ADReyeVRFactory(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -29,10 +29,10 @@ TArray<FActorDefinition> ADReyeVRFactory::GetDefinitions()
     FActorDefinition EgoVehicleDef;
     {
         FVehicleParameters Parameters;
-        Parameters.Model = "eScooter";
+        Parameters.Model = "eScooterSIM";
         Parameters.ObjectType = EgoVehicleBP_Str;
         Parameters.Class = AEgoVehicle::StaticClass();
-        Parameters.NumberOfWheels = 4;
+        Parameters.NumberOfWheels = 2;
 
         ADReyeVRFactory::MakeVehicleDefinition(Parameters, EgoVehicleDef);
     }

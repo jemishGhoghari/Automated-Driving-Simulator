@@ -404,28 +404,28 @@ std::tuple<float, float, float> ADReyeVRPawn::extractValues(FString val) {
     return std::make_tuple(accelerattion, brake, steering);
 }
 
+void ADReyeVRPawn::updateSerial() {
+    // Reading data from Serial Port in String Format
+    FString data = Serial->ReadString(bOpened);
+    // Print_String(data);
+    // extracting data in float datatype
+    float accVal, brakeVal, steeringVal;
+    std::tie(accVal, brakeVal, steeringVal) = extractValues(data);
+    // float _temp = normalizeInRange(steeringVal, 1.0, 3.0, -1.0, 1.0);
+    //float Updated_steeringVal = normalizeInRange(steeringVal, 1.0, 3.0, -1.0, 1.0);
+    EgoVehicle->SetSteering(-steeringVal);
+    EgoVehicle->SetThrottle(accVal);
+    EgoVehicle->SetBrake(1 - brakeVal);
+}
 #endif
 
 void ADReyeVRPawn::TickSerial() {
 #if USE_ARDUINO_PLUGIN
     if (EgoVehicle == nullptr)
         return;
-    
-    // Reading data from Serial Port in String Format
-    FString data = Serial->ReadString(bOpened);
-
-    // extracting data in float datatype
-    float accVal, brakeVal, steeringVal;
-    std::tie(accVal, brakeVal, steeringVal) = extractValues(data);
-    float Updated_steeringVal = normalizeInRange(steeringVal, 1.0, 3.0, -1.0, 1.0);
-
-    // Setting the Vehicle Control with Adruino Values
-    EgoVehicle->SetSteering(Updated_steeringVal);
-    EgoVehicle->SetThrottle(fabs(accVal));
-    EgoVehicle->SetBrake(fabs(1 - brakeVal));
+    updateSerial();
 #endif
 }
-
 
 /// ==========================================  ///
 /// ---------------:Utilities:----------------  ///
@@ -433,54 +433,6 @@ void ADReyeVRPawn::TickSerial() {
 void ADReyeVRPawn::Print_String(FString stringData) {
     GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, stringData);
 }
-
-float ADReyeVRPawn::normalizeInRange(float X, float min, float max, float rangeX, float rangeY) {
-    float normalized, denom, nom, factor;
-
-    if (X <= min) {
-        X = min;
-    }
-    if (X >= max) {
-        X = max;
-    }
-    denom = 1 / (max - min); // Denominator 
-    nom = X - min; // Nominator
-
-    factor = rangeY - rangeX;
-
-    normalized = (factor * nom * denom) + rangeX;
-    return normalized;
-}
-
-std::vector<long double> ADReyeVRPawn::movingAverage(std::vector<long double>& vec, size_t window_size) {
-    std::vector<long double> x;
-    return x;
-}
-
-//std::vector<long double> ADReyeVRPawn::movingAverage(std::vector<long double>& vec, size_t window_size) {
-//    if (vec.size() < window_size) {
-//        std::vector<long double> empty;
-//        return empty;
-//    }
-//
-//    std::vector<long double> sma_values(vec.size() - window_size + 1);
-//    long double window_sum = 0.0;
-//    size_t index = 0;
-//    size_t output_index = 0;
-//    size_t window_width = 0;
-//
-//    for (; index < window_size; ++index) {
-//        window_sum += vec[index];
-//    }
-//
-//    for (; index < vec.size(); ++index, ++output_index) {
-//        
-//    }
-//}
-
-/// ========================================== ///
-/// ---------------:LOGITECH:----------------- ///
-/// ========================================== ///
 
 void ADReyeVRPawn::InitLogiWheel()
 {
@@ -627,7 +579,7 @@ void ADReyeVRPawn::LogLogitechPluginStruct(const struct DIJOYSTATE2 *Now)
     (*Old) = (*Now);
 }
 
-void ADReyeVRPawn::LogitechWheelUpdate()
+void ADReyeVRPawn::LogitechWheelUpdate() 
 {
     check(EgoVehicle);
     ensure(bOverrideInputsWithKbd == false); // kbd inputs should be false

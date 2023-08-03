@@ -636,7 +636,7 @@ void AEgoVehicle::ConstructDashText() // dashboard text (speedometer, turn signa
     // Create speedometer
     Speedometer = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Speedometer"));
     Speedometer->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    Speedometer->SetRelativeLocation(DashboardLocnInVehicle);
+    Speedometer->SetRelativeLocation(DashboardLocnInVehicle + FVector(0.0, 0.f, 10.f));
     Speedometer->SetRelativeRotation(FRotator(0.f, 180.f, 0.f)); // need to flip it to get the text in driver POV
     Speedometer->SetTextRenderColor(FColor::Red);
     Speedometer->SetText(FText::FromString("0"));
@@ -650,10 +650,10 @@ void AEgoVehicle::ConstructDashText() // dashboard text (speedometer, turn signa
     // Create turn signals
     TurnSignals = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TurnSignals"));
     TurnSignals->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    TurnSignals->SetRelativeLocation(DashboardLocnInVehicle + FVector(0, 11.f, -5.f));
+    TurnSignals->SetRelativeLocation(DashboardLocnInVehicle + FVector(0.0, -15.f, 10.f));
     TurnSignals->SetRelativeRotation(FRotator(0.f, 180.f, 0.f)); // need to flip it to get the text in driver POV
     TurnSignals->SetTextRenderColor(FColor::Red);
-    TurnSignals->SetText(FText::FromString(""));
+    TurnSignals->SetText(FText::FromString("<-"));
     TurnSignals->SetXScale(1.f);
     TurnSignals->SetYScale(1.f);
     TurnSignals->SetWorldSize(10); // scale the font with this
@@ -663,7 +663,7 @@ void AEgoVehicle::ConstructDashText() // dashboard text (speedometer, turn signa
     // Create gear shifter
     GearShifter = CreateDefaultSubobject<UTextRenderComponent>(TEXT("GearShifter"));
     GearShifter->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    GearShifter->SetRelativeLocation(DashboardLocnInVehicle + FVector(0, 15.f, 0));
+    GearShifter->SetRelativeLocation(DashboardLocnInVehicle + FVector(0.0, 15.f, 10.f));
     GearShifter->SetRelativeRotation(FRotator(0.f, 180.f, 0.f)); // need to flip it to get the text in driver POV
     GearShifter->SetTextRenderColor(FColor::Red);
     GearShifter->SetText(FText::FromString("D"));
@@ -672,19 +672,6 @@ void AEgoVehicle::ConstructDashText() // dashboard text (speedometer, turn signa
     GearShifter->SetWorldSize(10); // scale the font with this
     GearShifter->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
     GearShifter->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
-
-    // Render FPS on Dashboard
-    fpsRenderer = CreateDefaultSubobject<UTextRenderComponent>(TEXT("FPSRenderer"));
-    fpsRenderer->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    fpsRenderer->SetRelativeLocation(DashboardLocnInVehicle + FVector(0, 15.f, 0));
-    fpsRenderer->SetRelativeRotation(FRotator(0.f, 180.f, 0.f)); // need to flip it to get the text in driver POV
-    fpsRenderer->SetTextRenderColor(FColor::Green);
-    fpsRenderer->SetText(FText::FromString("0"));
-    fpsRenderer->SetXScale(1.f);
-    fpsRenderer->SetYScale(1.f);
-    fpsRenderer->SetWorldSize(10); // scale the font with this
-    fpsRenderer->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
-    fpsRenderer->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 }
 
 void AEgoVehicle::UpdateDash()
@@ -745,9 +732,9 @@ void AEgoVehicle::UpdateDash()
     else
         GearShifter->SetText(FText::FromString("D"));
 
-    // FPS Renderer
-    const FString fps_data = FString::FromInt(int(FMath::RoundHalfFromZero(countFPS)));
-    fpsRenderer->SetText(FText::FromString(fps_data));
+    //// FPS Renderer
+    //const FString fps_data = FString::FromInt(int(FMath::RoundHalfFromZero(countFPS)));
+    //fpsRenderer->SetText(FText::FromString(fps_data));
 }
 
 /// ========================================== ///
@@ -757,7 +744,7 @@ void AEgoVehicle::UpdateDash()
 void AEgoVehicle::ConstructSteeringWheel()
 {
     static ConstructorHelpers::FObjectFinder<UStaticMesh> SteeringWheelSM(TEXT(
-        "StaticMesh'/Game/DReyeVR/EgoVehicle/model3/SteeringWheel/SM_Steering_eScooter.SM_Steering_eScooter'"));
+        "StaticMesh'/Game/DReyeVR/EgoVehicle/eScooter/Steering/SM_eScooterSIM_Steering.SM_eScooterSIM_Steering'"));
     SteeringWheel = CreateDefaultSubobject<UStaticMeshComponent>(FName("SteeringWheel"));
     SteeringWheel->SetStaticMesh(SteeringWheelSM.Object);
     SteeringWheel->SetupAttachment(GetRootComponent()); // The vehicle blueprint itself
@@ -782,13 +769,13 @@ void AEgoVehicle::TickSteeringWheel(const float DeltaTime)
     {
         float WheelAngleDeg = GetWheelSteerAngle(EVehicleWheelLocation::Front_Wheel);
         // float MaxWheelAngle = GetMaximumSteerAngle();
-        float DeltaAngle = 10.f * (2.0f * WheelAngleDeg - CurrentRotation.Roll);
+        float DeltaAngle = 10.f * (2.0f * WheelAngleDeg - CurrentRotation.Yaw);
 
         // create the new rotation using the deltas
-        NewRotation += DeltaTime * FRotator(0.f, 0.f, DeltaAngle);
+        NewRotation += DeltaTime * FRotator(0.f, DeltaAngle, 0.f);
 
         // Clamp the roll amount so the wheel can't spin infinitely
-        NewRotation.Roll = FMath::Clamp(NewRotation.Roll, -MaxSteerAngleDeg, MaxSteerAngleDeg);
+        NewRotation.Yaw = FMath::Clamp(NewRotation.Yaw, -MaxSteerAngleDeg, MaxSteerAngleDeg);
     }
     SteeringWheel->SetRelativeRotation(NewRotation);
 }

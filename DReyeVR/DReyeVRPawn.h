@@ -4,7 +4,9 @@
 #include "EgoVehicle.h"             // AEgoVehicle
 #include "Engine/Scene.h"           // FPostProcessSettings
 #include "GameFramework/Pawn.h"     // CreatePlayerInputComponent
-
+#include "Kismet/KismetMathLibrary.h" // Kismet Math Library for Weighted Moving Average function
+#include "Kismet/KismetStringLibrary.h"
+#include <deque>
 ///////////// : Extra Libraries : /////////////////////
 
 #ifndef _WIN32
@@ -103,8 +105,8 @@ class ADReyeVRPawn : public APawn
     bool bDrawFlatHud = true;            // whether to draw the flat hud at all (default true, but false in VR)
     bool bDrawFPSCounter = true;         // draw FPS counter in top left corner
     bool bDrawGaze = false;              // whether or not to draw a line for gaze-ray on HUD
-    bool bDrawSpectatorReticle = true;   // Reticle used in the VR-spectator mode
-    bool bDrawFlatReticle = true;        // Reticle used in the flat mode (uses HUD) (ONLY in non-vr mode)
+    bool bDrawSpectatorReticle = false;   // Reticle used in the VR-spectator mode
+    bool bDrawFlatReticle = false;        // Reticle used in the flat mode (uses HUD) (ONLY in non-vr mode)
     bool bEnableSpectatorScreen = false; // don't spent time rendering the spectator screen
     bool bRectangularReticle = false;    // draw the reticle texture on the HUD & Spectator (NOT RECOMMENDED)
 
@@ -134,13 +136,13 @@ class ADReyeVRPawn : public APawn
     void connectSerial(); // Connect and Initialize the Port ad given Port name and Baud rate
     void disconnectSerial(); // disconnects the Serial Port and Clean up the Port
     std::tuple<float, float, float> extractValues(FString val); // returns the extracted values from Arduino in form of Tuple
+    void updateSerial(); 
 #endif
     void TickSerial(); // Ticking the Arduino controller
          
     ///////////////////////////////////////////// : Utilities: /////////////////////////////////////////////
     void Print_String(FString stringData); // Prints string values on the game window
-    float normalizeInRange(float X, float min, float max, float rangeX, float rangeY); // Return the normalized values between given range
-    std::vector<long double> movingAverage(std::vector<long double>& vec, size_t window_size);
+    // float normalizeInRange(float X, float min, float max, float rangeX, float rangeY); // Return the normalized values between given range
 
     ////////////////:LOGI:////////////////
     void InitLogiWheel();

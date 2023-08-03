@@ -44,10 +44,20 @@ public class CarlaUE4 : ModuleRules
         ////////////////////////////////////////////////////////////////////////////////////
         // Edit these variables to enable/disable features of DReyeVR
         bool UseSRanipalPlugin = false;
-        bool UseAdruinoPlugin =  true;
+        bool UseAdruinoPlugin =  false;
         bool UseLogitechPlugin = false;
         bool UseFoveatedRender = false; // currently only supported in editor
         ////////////////////////////////////////////////////////////////////////////////////
+
+        if (UseAdruinoPlugin)
+        {
+            UseLogitechPlugin = false;
+        }
+
+        if (UseLogitechPlugin)
+        {
+            UseAdruinoPlugin = false;
+        }
 
         if (!IsWindows(Target))
         {
@@ -55,7 +65,6 @@ public class CarlaUE4 : ModuleRules
             UseSRanipalPlugin = false; // SRanipal only works on Windows
             UseLogitechPlugin = false; // LogitechWheelPlugin also only works on Windows
             UseFoveatedRender = false; // Vive VRS plugin requires engine fork
-            UseAdruinoPlugin = false;
         }
 
         // Add these preprocessor definitions to code
